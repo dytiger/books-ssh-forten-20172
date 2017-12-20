@@ -129,6 +129,7 @@
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>9.4.8.v20171121</version>
                 <configuration>
+                    <reload>manual</reload>
                     <httpConnector>
                         <port>8080</port>
                         <host>localhost</host>

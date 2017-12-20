@@ -94,17 +94,83 @@
                 <input id="bookAmount" placeholder="库存" class="form-control"/>
             </div>
         </div>
-        <div>
+        <div class="text-center">
             <button id="save-btn" type="button" class="btn btn-success">保存</button>
             <button type="reset" class="btn btn-warning">重置</button>
         </div>
     </form>
 </div>
+<div id="edit-dialog" title="修改书籍信息">
+    <form id="edit-form" class="form-horizontal col-lg-10 col-lg-offset-1">
+        <div class="form-group">
+            <label for="edit-bookName" class="control-label col-lg-3">书名</label>
+            <div class="col-lg-9">
+                <input id="edit-bookName" placeholder="书名" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="edit-author" class="control-label col-lg-3">作者</label>
+            <div class="col-lg-9">
+                <input id="edit-author" placeholder="作者" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="edit-press" class="control-label col-lg-3">出版社</label>
+            <div class="col-lg-9">
+                <input id="edit-press" placeholder="出版社" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="edit-pubDate" class="control-label col-lg-3">出版日期</label>
+            <div class="col-lg-9">
+                <input id="edit-pubDate" placeholder="出版日期" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="edit-price" class="control-label col-lg-3">价格</label>
+            <div class="col-lg-9">
+                <input id="edit-price" placeholder="价格" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="edit-bookAmount" class="control-label col-lg-3">库存</label>
+            <div class="col-lg-9">
+                <input id="edit-bookAmount" placeholder="库存" class="form-control"/>
+            </div>
+        </div>
+    </form>
+</div>
+<div id="msg-dialog" title="">
+    <p id="msg-text"></p>
+</div>
 <script src="../js/jquery-3.2.1.js"></script>
-<script src="../js/jquery-ui.js"></script>
 <script src="../js/bootstrap.js"></script>
+<script src="../js/jquery-ui.js"></script>
+<!--<div class="text-center">
+    <button id="update-btn" type="button" class="btn btn-success">修改</button>
+    <button type="reset" class="btn btn-warning">重置</button>
+</div>-->
 <script>
     let lastPage = 0;
+
+    let editDialog = $("#edit-dialog").dialog({
+        autoOpen:false,
+        modal:true,
+        width:550,
+        height:460,
+        buttons:[{
+            text:"修改",
+            click:function(){
+                // 执行AJAX
+            }
+        },{
+            text:"重置",
+            click:function () {
+                $("#edit-form").get(0).reset();
+            }
+        }]
+    });
+
     $(function () {
         list();
         $('#list-btn').click(list);
@@ -116,6 +182,10 @@
         $(pageBtns[3]).click(toLastPage);
 
         $("#save-btn").click(save);
+
+        $('#data-body').on('click','.open-edit-dialog-btn',function () {
+            editDialog.dialog('open');
+        });
     });
 
     let save = function () {
@@ -137,7 +207,16 @@
             dataType:"json",
             contentType:"application/json"
         }).then(function (ro) {
-            alert(ro.msg);
+            let msgDialog = $("#msg-dialog").dialog({
+                autoOpen:false,
+                title:ro.typeChineseDes
+            });
+
+            $("#msg-text").html(ro.msg);
+            msgDialog.dialog('open');
+
+            let dateStrArr = book.pubDate.split("-");
+            book.pubDate = dateStrArr[0]+"年"+dateStrArr[1]+"月";
 
             let newTr = "<tr>" +
                 "<td>1</td>"+
@@ -147,7 +226,7 @@
                 "<td>"+book.pubDate+"</td>"+
                 "<td>"+book.price+"</td>"+
                 "<td>"+book.amount+"</td>"+
-                "<td>"+book.id+"</td>"+
+                "<td><button>修改</button></td>"+
                 "</tr>";
 
             let oldTrs = $("tr","#data-body");
@@ -157,8 +236,15 @@
             for(let i = 0;i<oldTrs.length;i++){
                 oldTrs[i].children[0].innerText = (i+2);
             }
+
+            $("#save-form").get(0).reset();
         },function (xhr) {
-            alert(xhr.responseText);
+            let msgDialog = $("#msg-dialog").dialog({
+                autoOpen:false,
+                title:ro.typeChineseDes
+            });
+            $("#msg-text").html(ro.msg);
+            msgDialog.dialog('open');
         });
     }
 
@@ -197,8 +283,8 @@
                         "<td>"+b.pubDateStr+"</td>"+
                         "<td>"+b.price+"</td>"+
                         "<td>"+b.amount+"</td>"+
-                        "<td>"+b.id+"</td>"+
-                            "</tr>";
+                        "<td><button title='修改' class='btn btn-link text-danger open-edit-dialog-btn' data-id='"+b.id+"'><span class='glyphicon glyphicon-edit'></span></button></td>"+
+                        "</tr>";
                 });
                 tbody.html(trs);
                 let page = ro.page;
