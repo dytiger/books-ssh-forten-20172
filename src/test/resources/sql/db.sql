@@ -1,5 +1,3 @@
--- 这里是数据库的初始化脚本
-
 DROP DATABASE books;
 
 CREATE DATABASE books /*!40100 DEFAULT CHARACTER SET utf8 */;
@@ -17,6 +15,33 @@ CREATE TABLE book
 	amount int(3) NOT NULL
 );
 
+CREATE TABLE users
+(
+	id int(11) PRIMARY KEY AUTO_INCREMENT,
+	login_name varchar(30) UNIQUE NOT NULL,
+	password varchar(36) NOT NULL,
+	name varchar(30) NOT NULL,
+	library_card varchar(10) NOT NULL,
+	user_level int(2) DEFAULT 0 NOT NULL
+);
+
+CREATE TABLE borrow_info
+(
+	id int(11) PRIMARY KEY AUTO_INCREMENT,
+	uid int(11),
+	bid int(11),
+	borrow_time date,
+	borrow_status char(2) DEFAULT 'PB'
+);
+
+INSERT INTO users (login_name,name,password,library_card,user_level) VALUES
+('admin','万雷','1','111000',99),
+('u1','李靖','1','111',0),
+('u2','王双','1','222',1),
+('u3','刘大强','1','333',0),
+('u4','张成','1','444',2),
+('u5','孙万','1','555',10);
+
 INSERT INTO book (name,author,press,price,amount,pub_date) VALUES
 ('Java面试宝典','张小华','清华大学出版社',38,5,'2015-06-01'),
 ('Python入门教程','刘刚','电子工业出版社',64,3,'2005-02-01'),
@@ -31,5 +56,15 @@ INSERT INTO book (name,author,press,price,amount,pub_date) VALUES
 ('数据结构','刘灡','清华大学出版社',45,8,'2016-04-01'),
 ('C语言程序设计','王建宇','人民邮电出版社',33,15,'2011-09-01'),
 ('Oracle DBA教程','刘怀楚','电子工业出版社',68,1,'2012-12-01');
+
+INSERT INTO borrow_info (uid,bid,borrow_time,borrow_status) VALUES
+(1,2,'2017-06-30','BD'),
+(2,3,'2017-09-10','BD'),
+(2,6,'2017-10-16','BD'),
+(3,12,'2017-11-30','BD'),
+(4,12,'2017-12-01','BD'),
+(4,8,'2017-11-05','BD'),
+(1,7,'2017-12-10','BD'),
+(2,10,'2017-12-19','PB');
 
 commit;
