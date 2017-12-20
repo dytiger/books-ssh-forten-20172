@@ -1,5 +1,7 @@
 package org.forten.books.entity;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -19,6 +21,7 @@ public class Book implements Serializable {
     @Column
     private String press;
     @Column(name="pub_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date pubDate;
     @Column
     private int price;

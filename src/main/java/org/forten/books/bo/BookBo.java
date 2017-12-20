@@ -2,7 +2,9 @@ package org.forten.books.bo;
 
 import org.forten.books.dto.qo.BookQo;
 import org.forten.books.dto.vo.BookForShow;
+import org.forten.books.entity.Book;
 import org.forten.dao.HibernateDao;
+import org.forten.dto.Message;
 import org.forten.dto.PageInfo;
 import org.forten.dto.PagedRo;
 import org.forten.util.StringUtil;
@@ -19,6 +21,17 @@ import java.util.Map;
 public class BookBo {
     @Resource
     private HibernateDao dao;
+
+    @Transactional
+    public Message doSave(Book book){
+        try{
+            dao.save(book);
+            return Message.info("书籍信息添加完成");
+        }catch (Exception e){
+            e.printStackTrace();
+            return Message.error("书籍信息添加失败");
+        }
+    }
 
     @Transactional(readOnly = true)
     public PagedRo<BookForShow> queryBy(BookQo qo) {

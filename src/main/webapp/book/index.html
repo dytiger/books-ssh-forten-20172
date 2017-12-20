@@ -5,6 +5,12 @@
     <title>图书信息维护</title>
     <link rel="stylesheet" href="../css/bootstrap.css"/>
     <link rel="stylesheet" href="../css/jquery-ui.css"/>
+    <style>
+        #save-form{
+            margin-top: 30px;
+        }
+
+    </style>
 </head>
 <body>
 <div class="container">
@@ -50,6 +56,49 @@
         <button class="btn page-btn">&gt;</button>
         <button class="btn page-btn">&gt;&gt;</button>
     </p>
+    
+    <form id="save-form" class="form-horizontal col-lg-6 col-lg-offset-3">
+        <div class="form-group">
+            <label for="bookName" class="control-label col-lg-2">书名</label>
+            <div class="col-lg-10">
+                <input id="bookName" placeholder="书名" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="author" class="control-label col-lg-2">作者</label>
+            <div class="col-lg-10">
+                <input id="author" placeholder="作者" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="press" class="control-label col-lg-2">出版社</label>
+            <div class="col-lg-10">
+                <input id="press" placeholder="出版社" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="pubDate" class="control-label col-lg-2">出版日期</label>
+            <div class="col-lg-10">
+                <input id="pubDate" placeholder="出版日期" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="price" class="control-label col-lg-2">价格</label>
+            <div class="col-lg-10">
+                <input id="price" placeholder="价格" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="bookAmount" class="control-label col-lg-2">库存</label>
+            <div class="col-lg-10">
+                <input id="bookAmount" placeholder="库存" class="form-control"/>
+            </div>
+        </div>
+        <div>
+            <button id="save-btn" type="button" class="btn btn-success">保存</button>
+            <button type="reset" class="btn btn-warning">重置</button>
+        </div>
+    </form>
 </div>
 <script src="../js/jquery-3.2.1.js"></script>
 <script src="../js/jquery-ui.js"></script>
@@ -65,7 +114,53 @@
         $(pageBtns[1]).click(prePage);
         $(pageBtns[2]).click(nextPage);
         $(pageBtns[3]).click(toLastPage);
+
+        $("#save-btn").click(save);
     });
+
+    let save = function () {
+        let book = {
+            "name":$("#bookName").val(),
+            "press":$("#press").val(),
+            "author":$("#author").val(),
+            "price":$("#price").val(),
+            "pubDate":$("#pubDate").val(),
+            "amount":$("#bookAmount").val()
+        };
+
+        let bookJSON = JSON.stringify(book);
+
+        $.ajax({
+            url:"save.do",
+            type:"POST",
+            data:bookJSON,
+            dataType:"json",
+            contentType:"application/json"
+        }).then(function (ro) {
+            alert(ro.msg);
+
+            let newTr = "<tr>" +
+                "<td>1</td>"+
+                "<td>"+book.name+"</td>"+
+                "<td>"+book.author+"</td>"+
+                "<td>"+book.press+"</td>"+
+                "<td>"+book.pubDate+"</td>"+
+                "<td>"+book.price+"</td>"+
+                "<td>"+book.amount+"</td>"+
+                "<td>"+book.id+"</td>"+
+                "</tr>";
+
+            let oldTrs = $("tr","#data-body");
+            oldTrs.remove("tr:last");
+            $("#data-body").prepend(newTr);
+
+            for(let i = 0;i<oldTrs.length;i++){
+                oldTrs[i].children[0].innerText = (i+2);
+            }
+        },function (xhr) {
+            alert(xhr.responseText);
+        });
+    }
 
     let list = function () {
         let tbody = $("#data-body");
