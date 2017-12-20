@@ -63,7 +63,7 @@ public class BookForShow {
         if(pubDate==null){
             pubDateStr = "";
         }else {
-            this.pubDateStr = DateUtil.convertToString(pubDate,"yyyy-MM-dd");
+            this.pubDateStr = DateUtil.convertToString(pubDate,"yyyy年MM月");
         }
     }
 
