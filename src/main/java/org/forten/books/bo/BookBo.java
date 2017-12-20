@@ -2,12 +2,14 @@ package org.forten.books.bo;
 
 import org.forten.books.dto.qo.BookQo;
 import org.forten.books.dto.vo.BookForShow;
+import org.forten.books.dto.vo.BookForUpdate;
 import org.forten.books.entity.Book;
 import org.forten.dao.HibernateDao;
 import org.forten.dto.Message;
 import org.forten.dto.PageInfo;
 import org.forten.dto.PagedRo;
 import org.forten.util.StringUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,5 +69,18 @@ public class BookBo {
         List<BookForShow> list = dao.findBy(hql,params,page.getFirst(),page.getPageSize());
 
         return new PagedRo<>(list,page);
+    }
+
+    @Transactional
+    public Message doUpdate(BookForUpdate vo){
+        try {
+            Book book = dao.loadById(Book.class, vo.getId());
+            BeanUtils.copyProperties(vo, book);
+            dao.update(book);
+            return Message.info("修改书籍信息完成");
+        }catch (Exception e){
+            e.printStackTrace();
+            return Message.error("修改书籍信息失败");
+        }
     }
 }

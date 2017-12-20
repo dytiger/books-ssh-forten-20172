@@ -3,6 +3,7 @@ package org.forten.books.action;
 import org.forten.books.bo.BookBo;
 import org.forten.books.dto.qo.BookQo;
 import org.forten.books.dto.vo.BookForShow;
+import org.forten.books.dto.vo.BookForUpdate;
 import org.forten.books.entity.Book;
 import org.forten.dto.Message;
 import org.forten.dto.PagedRo;
@@ -28,5 +29,11 @@ public class BookAction {
     public @ResponseBody
     Message save(@RequestBody Book book) {
         return bo.doSave(book);
+    }
+
+    @RequestMapping("/book/update")
+    public @ResponseBody
+    Message update(@RequestBody BookForUpdate vo) {
+        return bo.doUpdate(vo);
     }
 }
