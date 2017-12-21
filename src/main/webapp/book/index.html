@@ -3,106 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <title>图书信息维护</title>
-    <link rel="icon" href="../css/images/bookicon.png" />
+    <link rel="icon" href="../css/images/bookicon.png"/>
     <link rel="stylesheet" href="../css/bootstrap.css"/>
     <link rel="stylesheet" href="../css/jquery-ui.css"/>
     <style>
-        .container{
+        .container {
             margin-top: 50px;
         }
 
-        #save-form{
+        #save-form {
             margin-top: 30px;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <form id="list-form" class="form-inline">
-        <div class="form-group">
-            <input id="name" placeholder="书名" class="form-control"/>
+<div id="tabs" class="container">
+    <ul>
+        <li><a href="#items-1">图书信息维护</a></li>
+        <li><a href="#items-2">读者服务</a></li>
+    </ul>
+    <div id="items-1">
+        <form id="list-form" class="form-inline">
+            <div class="form-group">
+                <input id="name" placeholder="书名" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <input id="begin" type="date" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <input id="end" type="date" class="form-control"/>
+            </div>
+            <button id="list-btn" type="button" class="btn btn-success">查询</button>
+        </form>
+        <div class="row">
+            <div class="col-lg-8">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>书名</th>
+                        <th>作者</th>
+                        <th>出版社</th>
+                        <th>出版日期</th>
+                        <th>价格</th>
+                        <th>库存</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="data-body">
+
+                    </tbody>
+                </table>
+                <p class="text-right">
+                    第<span id="first"></span>~<span id="last"></span>条/共<span id="amount"></span>数据 第<span
+                        id="pageNum"></span>页/共<span
+                        id="pageAmount"></span>页
+                    <button class="btn page-btn">&lt;&lt;</button>
+                    <button class="btn page-btn">&lt;</button>
+                    <input id="pageNo" value="1" form="list-form"/>
+                    <select id="pageSize" form="list-form">
+                        <option value="3">3</option>
+                        <option value="5" selected>5</option>
+                        <option value="10">10</option>
+                    </select>
+                    <button class="btn page-btn">&gt;</button>
+                    <button class="btn page-btn">&gt;&gt;</button>
+                </p>
+            </div>
+
+            <form id="save-form" class="form-horizontal col-lg-4">
+                <div class="form-group">
+                    <label for="bookName" class="control-label col-lg-2">书名</label>
+                    <div class="col-lg-10">
+                        <input id="bookName" placeholder="书名" class="form-control"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="author" class="control-label col-lg-2">作者</label>
+                    <div class="col-lg-10">
+                        <input id="author" placeholder="作者" class="form-control"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="press" class="control-label col-lg-2">出版社</label>
+                    <div class="col-lg-10">
+                        <input id="press" placeholder="出版社" class="form-control"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="pubDate" class="control-label col-lg-2">出版日期</label>
+                    <div class="col-lg-10">
+                        <input id="pubDate" placeholder="出版日期" type="date" class="form-control"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="price" class="control-label col-lg-2">价格</label>
+                    <div class="col-lg-10">
+                        <input id="price" placeholder="价格" class="form-control"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="bookAmount" class="control-label col-lg-2">库存</label>
+                    <div class="col-lg-10">
+                        <input id="bookAmount" placeholder="库存" class="form-control"/>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button id="save-btn" type="button" class="btn btn-success">保存</button>
+                    <button type="reset" class="btn btn-warning">重置</button>
+                </div>
+            </form>
         </div>
-        <div class="form-group">
-            <input id="begin" type="date" class="form-control"/>
-        </div>
-        <div class="form-group">
-            <input id="end" type="date" class="form-control"/>
-        </div>
-        <button id="list-btn" type="button" class="btn btn-success">查询</button>
-    </form>
-    <table class="table table-striped">
-        <thead>
+    </div>
+    <div id="items-2">
+        <form id="service-form" class="form-inline">
+            <div class="form-group">
+                <input id="card" placeholder="借阅证号" class="form-control"/>
+            </div>
+            <!--<button id="service-btn" type="button" class="btn btn-success">查询</button>-->
+        </form>
+        <table class="table table-striped">
+            <thead>
             <tr>
-                <th>序号</th>
+                <th>读者</th>
                 <th>书名</th>
-                <th>作者</th>
-                <th>出版社</th>
-                <th>出版日期</th>
-                <th>价格</th>
-                <th>库存</th>
+                <th>借入时间</th>
+                <th>借入状态</th>
                 <th>操作</th>
             </tr>
-        </thead>
-        <tbody id="data-body">
-
-        </tbody>
-    </table>
-    <p class="text-right">
-        第<span id="first"></span>~<span id="last"></span>条/共<span id="amount"></span>数据 第<span id="pageNum"></span>页/共<span id="pageAmount"></span>页
-        <button class="btn page-btn">&lt;&lt;</button>
-        <button class="btn page-btn">&lt;</button>
-        <input id="pageNo" value="1" form="list-form" />
-        <select id="pageSize" form="list-form">
-            <option value="3">3</option>
-            <option value="5" selected>5</option>
-            <option value="10">10</option>
-        </select>
-        <button class="btn page-btn">&gt;</button>
-        <button class="btn page-btn">&gt;&gt;</button>
-    </p>
-    
-    <form id="save-form" class="form-horizontal col-lg-6 col-lg-offset-3">
-        <div class="form-group">
-            <label for="bookName" class="control-label col-lg-2">书名</label>
-            <div class="col-lg-10">
-                <input id="bookName" placeholder="书名" class="form-control"/>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="author" class="control-label col-lg-2">作者</label>
-            <div class="col-lg-10">
-                <input id="author" placeholder="作者" class="form-control"/>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="press" class="control-label col-lg-2">出版社</label>
-            <div class="col-lg-10">
-                <input id="press" placeholder="出版社" class="form-control"/>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="pubDate" class="control-label col-lg-2">出版日期</label>
-            <div class="col-lg-10">
-                <input id="pubDate" placeholder="出版日期" type="date" class="form-control"/>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="price" class="control-label col-lg-2">价格</label>
-            <div class="col-lg-10">
-                <input id="price" placeholder="价格" class="form-control"/>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="bookAmount" class="control-label col-lg-2">库存</label>
-            <div class="col-lg-10">
-                <input id="bookAmount" placeholder="库存" class="form-control"/>
-            </div>
-        </div>
-        <div class="text-center">
-            <button id="save-btn" type="button" class="btn btn-success">保存</button>
-            <button type="reset" class="btn btn-warning">重置</button>
-        </div>
-    </form>
+            </thead>
+            <tbody id="borrowed-body"></tbody>
+        </table>
+    </div>
 </div>
 <div id="edit-dialog" title="修改书籍信息">
     <form id="edit-form" class="form-horizontal col-lg-10 col-lg-offset-1">
@@ -110,7 +142,7 @@
             <label for="edit-bookName" class="control-label col-lg-3">书名</label>
             <div class="col-lg-9">
                 <input id="edit-bookName" placeholder="书名" class="form-control"/>
-                <input id="edit-id" type="hidden" />
+                <input id="edit-id" type="hidden"/>
             </div>
         </div>
         <div class="form-group">
@@ -152,5 +184,9 @@
 <script src="../js/bootstrap.js"></script>
 <script src="../js/jquery-ui.js"></script>
 <script src="index.js"></script>
+<script>
+
+
+</script>
 </body>
 </html>

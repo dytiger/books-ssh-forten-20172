@@ -110,6 +110,13 @@ public class BookBo {
         // 预借操作
         BorrowInfo bi = new BorrowInfo(userId, bookId);
         dao.save(bi);
+
+        // 图书库存减1
+        hql = "UPDATE Book SET amount=amount-1 WHERE id=:id";
+        params.clear();
+        params.put("id",bookId);
+        dao.executeUpdate(hql,params);
+
         return Message.info("图书已经预借成功，请到管理员处领取图书。");
     }
 
@@ -121,6 +128,18 @@ public class BookBo {
                 "ORDER BY bi.borrowTime DESC";
         Map<String, Object> params = new HashMap<>(1);
         params.put("uId", userId);
+
+        return dao.findBy(hql, params);
+    }
+
+    @Transactional(readOnly = true)
+    public List<BorrowedBooksVo> queryBorrowedBooksForAdmin(String card) {
+        String hql = "SELECT new org.forten.books.dto.vo.BorrowedBooksVo(bi.id,u.name,b.name,bi.borrowStatus,bi.borrowTime) " +
+                "FROM User u JOIN BorrowInfo bi ON (u.id=bi.uId) JOIN Book b ON (b.id=bi.bId) " +
+                "WHERE u.libraryCard LIKE :card " +
+                "ORDER BY bi.borrowTime DESC";
+        Map<String, Object> params = new HashMap<>(1);
+        params.put("card", card + "%");
 
         return dao.findBy(hql, params);
     }

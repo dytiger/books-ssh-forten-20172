@@ -13,62 +13,69 @@
     </style>
 </head>
 <body>
-<div class="container">
-    <form id="list-form" class="form-inline">
-        <div class="form-group">
-            <input id="name" placeholder="书名" class="form-control"/>
-        </div>
-        <div class="form-group">
-            <input id="begin" type="date" class="form-control"/>
-        </div>
-        <div class="form-group">
-            <input id="end" type="date" class="form-control"/>
-        </div>
-        <button id="list-btn" type="button" class="btn btn-success">查询</button>
-    </form>
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>序号</th>
-            <th>书名</th>
-            <th>作者</th>
-            <th>出版社</th>
-            <th>出版日期</th>
-            <th>价格</th>
-            <th>库存</th>
-            <th>操作</th>
-        </tr>
-        </thead>
-        <tbody id="data-body">
+<div id="tabs" class="container">
+    <ul>
+        <li><a href="#tabs-1">查询图书信息</a></li>
+        <li><a href="#tabs-2">已借入图书信息</a></li>
+    </ul>
+    <div id="tabs-1">
+        <form id="list-form" class="form-inline">
+            <div class="form-group">
+                <input id="name" placeholder="书名" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <input id="begin" type="date" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <input id="end" type="date" class="form-control"/>
+            </div>
+            <button id="list-btn" type="button" class="btn btn-success">查询</button>
+        </form>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>书名</th>
+                <th>作者</th>
+                <th>出版社</th>
+                <th>出版日期</th>
+                <th>价格</th>
+                <th>库存</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="data-body">
 
-        </tbody>
-    </table>
-    <p class="text-right">
-        第<span id="first"></span>~<span id="last"></span>条/共<span id="amount"></span>数据 第<span
-            id="pageNum"></span>页/共<span id="pageAmount"></span>页
-        <button class="btn page-btn">&lt;&lt;</button>
-        <button class="btn page-btn">&lt;</button>
-        <input id="pageNo" value="1" form="list-form"/>
-        <select id="pageSize" form="list-form">
-            <option value="5">5</option>
-            <option value="10" selected>10</option>
-            <option value="15">15</option>
-        </select>
-        <button class="btn page-btn">&gt;</button>
-        <button class="btn page-btn">&gt;&gt;</button>
-    </p>
-
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>读者</th>
-            <th>书名</th>
-            <th>借入时间</th>
-            <th>借入状态</th>
-        </tr>
-        </thead>
-        <tbody id="borrowed-body"></tbody>
-    </table>
+            </tbody>
+        </table>
+        <p class="text-right">
+            第<span id="first"></span>~<span id="last"></span>条/共<span id="amount"></span>数据 第<span
+                id="pageNum"></span>页/共<span id="pageAmount"></span>页
+            <button class="btn page-btn">&lt;&lt;</button>
+            <button class="btn page-btn">&lt;</button>
+            <input id="pageNo" value="1" form="list-form"/>
+            <select id="pageSize" form="list-form">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="15">15</option>
+            </select>
+            <button class="btn page-btn">&gt;</button>
+            <button class="btn page-btn">&gt;&gt;</button>
+        </p>
+    </div>
+    <div id="tabs-2">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>读者</th>
+                <th>书名</th>
+                <th>借入时间</th>
+                <th>借入状态</th>
+            </tr>
+            </thead>
+            <tbody id="borrowed-body"></tbody>
+        </table>
+    </div>
 </div>
 <div id="msg-dialog">
     <p id="msg-p"></p>
@@ -87,7 +94,7 @@
             contentType: "application/json"
         }).then(function (list) {
             tbody.empty();
-            if (list.length==0) {
+            if (list.length == 0) {
                 tbody.html("<tr><td colspan='8' class='text-danger text-center'>暂无借阅记录</td></tr>");
             } else {
                 let trs = "";
@@ -101,7 +108,7 @@
                 });
                 tbody.html(trs);
             }
-        },function (xhr) {
+        }, function (xhr) {
             alert("ERROR");
         });
     };
@@ -189,26 +196,39 @@
     }
 
     let preBorrow = function () {
-        let bId = $(this).data("id");
+        let btn = $(this);
+        let bId = btn.data("id");
+        let amountTd = btn.parent().prev();
+        let amount = parseInt(amountTd.text());
+        if(amount>0){
+            amount = amount - 1;
+        }
         $.ajax({
-            url:"preBorrow.do?bId="+bId,
-            type:"GET",
+            url: "preBorrow.do?bId=" + bId,
+            type: "GET",
             contentType: "application/json"
         }).then(function (message) {
             $("#msg-p").text(message.msg);
             let md = $("#msg-dialog").dialog({
-                title:message.typeChineseDes
+                title: message.typeChineseDes
             });
-            listBorrowed();
-        },function (xhr) {
+            if(message.typeDes=='info'){
+                listBorrowed();
+                if(amount==0){
+                    btn.prop('disabled',true);
+                }
+                amountTd.text(amount);
+            }
+        }, function (xhr) {
             $("#msg-p").text("预借图书时系统发生错误，请稍后再试。");
             let md = $("#msg-dialog").dialog({
-                title:message.typeChineseDes
+                title: message.typeChineseDes
             });
         });
     };
 
     $(function () {
+        $("#tabs").tabs();
         list();
         listBorrowed();
         $('#list-btn').click(list);

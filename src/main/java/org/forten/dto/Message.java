@@ -47,7 +47,7 @@ public class Message implements Serializable {
         private String des;
         private String chineseDes;
 
-        private MsgType(String des, String chineseDes) {
+        MsgType(String des, String chineseDes) {
             this.des = des;
             this.chineseDes = chineseDes;
         }

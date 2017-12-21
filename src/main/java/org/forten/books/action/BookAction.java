@@ -4,6 +4,7 @@ import org.forten.books.bo.BookBo;
 import org.forten.books.dto.qo.BookQo;
 import org.forten.books.dto.vo.BookForShow;
 import org.forten.books.dto.vo.BookForUpdate;
+import org.forten.books.dto.vo.BorrowedBooksVo;
 import org.forten.books.entity.Book;
 import org.forten.dto.Message;
 import org.forten.dto.PagedRo;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Controller
 public class BookAction {
@@ -35,5 +38,11 @@ public class BookAction {
     public @ResponseBody
     Message update(@RequestBody BookForUpdate vo) {
         return bo.doUpdate(vo);
+    }
+
+    @RequestMapping("/book/queryBorrowedBooks")
+    public @ResponseBody
+    List<BorrowedBooksVo> queryBorrowedBooks(String card, HttpSession session) {
+        return bo.queryBorrowedBooksForAdmin(card);
     }
 }

@@ -72,48 +72,6 @@ let editDialog = $("#edit-dialog").dialog({
     }]
 });
 
-$(function () {
-    list();
-    $('#list-btn').click(list);
-    $("#pageSize").change(list);
-    let pageBtns = $(".page-btn");
-    $(pageBtns[0]).click(toFirstPage);
-    $(pageBtns[1]).click(prePage);
-    $(pageBtns[2]).click(nextPage);
-    $(pageBtns[3]).click(toLastPage);
-
-    $("#save-btn").click(save);
-
-    $('#data-body').on('click', '.open-edit-dialog-btn', function () {
-        let btn = $(this);
-        let id = btn.data("id");
-        let tr = btn.parent().parent();
-        let tds = tr.children();
-
-        bookForUpdate = {
-            "id": id,
-            "name": $(tds[1]).text(),
-            "author": $(tds[2]).text(),
-            "press": $(tds[3]).text(),
-            "pubDate": $(tds[4]).text(),
-            "price": $(tds[5]).text(),
-            "amount": $(tds[6]).text()
-        };
-
-        bookForUpdate.pubDate = bookForUpdate.pubDate.replace("年", "-").replace("月", "-") + "01";
-
-        $("#edit-id").val(bookForUpdate.id);
-        $("#edit-bookName").val(bookForUpdate.name);
-        $("#edit-author").val(bookForUpdate.author);
-        $("#edit-press").val(bookForUpdate.press);
-        $("#edit-pubDate").val(bookForUpdate.pubDate);
-        $("#edit-price").val(bookForUpdate.price);
-        $("#edit-bookAmount").val(bookForUpdate.amount);
-
-        editDialog.dialog('open');
-    });
-});
-
 let save = function () {
     let book = {
         "name": $("#bookName").val(),
@@ -255,3 +213,88 @@ let prePage = function () {
     }
     list();
 }
+
+let listBorrowed = function () {
+    let tbody = $("#borrowed-body");
+    let num = $(this).val();
+    if (num.length >= 3) {
+        $.ajax({
+            url: "queryBorrowedBooks.do?card=" + num,
+            type: "GET",
+            contentType: "application/json"
+        }).then(function (list) {
+            tbody.empty();
+            if (list.length == 0) {
+                tbody.html("<tr><td colspan='8' class='text-danger text-center'>暂无借阅记录</td></tr>");
+            } else {
+                let trs = "";
+                $.each(list, function (i, b) {
+                    let btnHTML = null;
+                    if (b.borrowStatus == "PB") {
+                        btnHTML = "<button data-id='" + b.id + "'>借出</button>"
+                    } else if (b.borrowStatus == "BD") {
+                        btnHTML = "<button data-id='" + b.id + "'>归还</button>"
+                    } else {
+                        btnHTML = "";
+                    }
+                    trs = trs + "<tr>" +
+                        "<td>" + b.userName + "</td>" +
+                        "<td>" + b.bookName + "</td>" +
+                        "<td>" + b.borrowTimeStr + "</td>" +
+                        "<td>" + b.borrowStatusDes + "</td>" +
+                        "<td>" + btnHTML + "</td>" +
+                        "</tr>";
+                });
+                tbody.html(trs);
+            }
+        }, function (xhr) {
+            alert("ERROR");
+        });
+    }
+};
+
+$(function () {
+    $("#tabs").tabs();
+
+    list();
+    $('#list-btn').click(list);
+    $("#pageSize").change(list);
+    let pageBtns = $(".page-btn");
+    $(pageBtns[0]).click(toFirstPage);
+    $(pageBtns[1]).click(prePage);
+    $(pageBtns[2]).click(nextPage);
+    $(pageBtns[3]).click(toLastPage);
+
+    $("#save-btn").click(save);
+
+    $('#data-body').on('click', '.open-edit-dialog-btn', function () {
+        let btn = $(this);
+        let id = btn.data("id");
+        let tr = btn.parent().parent();
+        let tds = tr.children();
+
+        bookForUpdate = {
+            "id": id,
+            "name": $(tds[1]).text(),
+            "author": $(tds[2]).text(),
+            "press": $(tds[3]).text(),
+            "pubDate": $(tds[4]).text(),
+            "price": $(tds[5]).text(),
+            "amount": $(tds[6]).text()
+        };
+
+        bookForUpdate.pubDate = bookForUpdate.pubDate.replace("年", "-").replace("月", "-") + "01";
+
+        $("#edit-id").val(bookForUpdate.id);
+        $("#edit-bookName").val(bookForUpdate.name);
+        $("#edit-author").val(bookForUpdate.author);
+        $("#edit-press").val(bookForUpdate.press);
+        $("#edit-pubDate").val(bookForUpdate.pubDate);
+        $("#edit-price").val(bookForUpdate.price);
+        $("#edit-bookAmount").val(bookForUpdate.amount);
+
+        editDialog.dialog('open')
+
+    });
+    $("#card").keyup(listBorrowed);
+});

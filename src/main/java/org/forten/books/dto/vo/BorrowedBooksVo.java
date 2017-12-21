@@ -8,6 +8,7 @@ public class BorrowedBooksVo {
     private int id;
     private String userName;
     private String bookName;
+    private String borrowStatus;
     private String borrowStatusDes;
     private String borrowTimeStr;
 
@@ -18,6 +19,7 @@ public class BorrowedBooksVo {
         this.id = id;
         this.userName = userName;
         this.bookName = bookName;
+        this.borrowStatus = borrowStatus;
         setBorrowStatus(borrowStatus);
         setBorrowTime(borrowTime);
     }
@@ -45,6 +47,10 @@ public class BorrowedBooksVo {
         } else {
             this.borrowTimeStr = DateUtil.convertToString(borrowTime,"yyyy年MM月dd日");
         }
+    }
+
+    public String getBorrowStatus() {
+        return borrowStatus;
     }
 
     public int getId() {
