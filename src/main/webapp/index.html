@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>图书借阅查询</title>
-    <link rel="icon" href="css/images/bookicon.png" />
+    <link rel="icon" href="css/images/bookicon.png"/>
     <link rel="stylesheet" href="css/bootstrap.css"/>
     <link rel="stylesheet" href="css/jquery-ui.css"/>
     <style>
-        .container{
+        .container {
             margin-top: 50px;
         }
     </style>
@@ -44,10 +44,11 @@
         </tbody>
     </table>
     <p class="text-right">
-        第<span id="first"></span>~<span id="last"></span>条/共<span id="amount"></span>数据 第<span id="pageNum"></span>页/共<span id="pageAmount"></span>页
+        第<span id="first"></span>~<span id="last"></span>条/共<span id="amount"></span>数据 第<span
+            id="pageNum"></span>页/共<span id="pageAmount"></span>页
         <button class="btn page-btn">&lt;&lt;</button>
         <button class="btn page-btn">&lt;</button>
-        <input id="pageNo" value="1" form="list-form" />
+        <input id="pageNo" value="1" form="list-form"/>
         <select id="pageSize" form="list-form">
             <option value="5">5</option>
             <option value="10" selected>10</option>
@@ -56,12 +57,55 @@
         <button class="btn page-btn">&gt;</button>
         <button class="btn page-btn">&gt;&gt;</button>
     </p>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>读者</th>
+            <th>书名</th>
+            <th>借入时间</th>
+            <th>借入状态</th>
+        </tr>
+        </thead>
+        <tbody id="borrowed-body"></tbody>
+    </table>
+</div>
+<div id="msg-dialog">
+    <p id="msg-p"></p>
 </div>
 <script src="js/jquery-3.2.1.js"></script>
 <script src="js/bootstrap.js"></script>
 <script src="js/jquery-ui.js"></script>
 <script>
     let lastPage = 0;
+
+    let listBorrowed = function () {
+        let tbody = $("#borrowed-body");
+        $.ajax({
+            url: "queryBorrowedBooks.do",
+            type: "GET",
+            contentType: "application/json"
+        }).then(function (list) {
+            tbody.empty();
+            if (list.length==0) {
+                tbody.html("<tr><td colspan='8' class='text-danger text-center'>暂无借阅记录</td></tr>");
+            } else {
+                let trs = "";
+                $.each(list, function (i, b) {
+                    trs = trs + "<tr>" +
+                        "<td>" + b.userName + "</td>" +
+                        "<td>" + b.bookName + "</td>" +
+                        "<td>" + b.borrowTimeStr + "</td>" +
+                        "<td>" + b.borrowStatusDes + "</td>" +
+                        "</tr>";
+                });
+                tbody.html(trs);
+            }
+        },function (xhr) {
+            alert("ERROR");
+        });
+    };
+
     let list = function () {
         let tbody = $("#data-body");
         // 封装表单数据为JSON
@@ -97,7 +141,7 @@
                         "<td>" + b.pubDateStr + "</td>" +
                         "<td>" + b.price + "</td>" +
                         "<td>" + b.amount + "</td>" +
-                        "<td><button title='借阅' class='btn btn-link text-danger open-edit-dialog-btn' data-id='" + b.id + "'><span class='glyphicon glyphicon-book'></span></button></td>" +
+                        "<td><button " + (b.amount == 0 ? 'disabled title=\'已借出\'' : 'title=\'借阅\'') + " class='btn btn-link text-danger borrow-btn' data-id='" + b.id + "'><span class='glyphicon glyphicon-book'></span></button></td>" +
                         "</tr>";
                 });
                 tbody.html(trs);
@@ -144,8 +188,29 @@
         list();
     }
 
+    let preBorrow = function () {
+        let bId = $(this).data("id");
+        $.ajax({
+            url:"preBorrow.do?bId="+bId,
+            type:"GET",
+            contentType: "application/json"
+        }).then(function (message) {
+            $("#msg-p").text(message.msg);
+            let md = $("#msg-dialog").dialog({
+                title:message.typeChineseDes
+            });
+            listBorrowed();
+        },function (xhr) {
+            $("#msg-p").text("预借图书时系统发生错误，请稍后再试。");
+            let md = $("#msg-dialog").dialog({
+                title:message.typeChineseDes
+            });
+        });
+    };
+
     $(function () {
         list();
+        listBorrowed();
         $('#list-btn').click(list);
         $("#pageSize").change(list);
         let pageBtns = $(".page-btn");
@@ -153,6 +218,8 @@
         $(pageBtns[1]).click(prePage);
         $(pageBtns[2]).click(nextPage);
         $(pageBtns[3]).click(toLastPage);
+
+        $('#data-body').on('click', '.borrow-btn', preBorrow);
     });
 </script>
 </body>
