@@ -55,4 +55,15 @@ public class BookAction {
     public @ResponseBody Message returnBook(int id){
         return bo.doReturnBook(id);
     }
+
+    @RequestMapping("/book/getBiMaxId")
+    public @ResponseBody int getBiMaxId(){
+        return bo.queryBorrowInfoMaxId();
+    }
+
+    @RequestMapping("/book/queryPBBi")
+    public @ResponseBody
+    List<BorrowedBooksVo> queryBorrowedBooks() {
+        return bo.queryPBBi();
+    }
 }

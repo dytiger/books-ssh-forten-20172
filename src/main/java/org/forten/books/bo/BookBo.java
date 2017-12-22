@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.swing.text.Style;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -179,5 +180,39 @@ public class BookBo {
         }catch(Exception e){
             return Message.error("图书归还失败");
         }
+    }
+
+    @Transactional
+    public void doCleanPB(){
+        String hql = "SELECT bId FROM BorrowInfo WHERE borrowStatus='PB'";
+        List<Integer> list = dao.findBy(hql);
+
+        // 恢复书籍的库存量
+        hql = "UPDATE Book SET amount=amount+1 WHERE id=:id";
+        Map<String,Object> params = new HashMap<>();
+        for(int bookId : list){
+            params.put("id",bookId);
+            dao.executeUpdate(hql,params);
+        }
+
+        // 删除BorrowInfo数据
+        hql = "DELETE FROM BorrowInfo WHERE borrowStatus='PB'";
+        dao.executeUpdate(hql);
+    }
+
+    @Transactional(readOnly = true)
+    public int queryBorrowInfoMaxId(){
+        String hql = "SELECT max(id) FROM BorrowInfo";
+        return dao.findOneBy(hql);
+    }
+
+    @Transactional(readOnly = true)
+    public List<BorrowedBooksVo> queryPBBi(){
+        String hql = "SELECT new org.forten.books.dto.vo.BorrowedBooksVo(bi.id,u.name,b.name,bi.borrowStatus,bi.borrowTime) " +
+                "FROM User u JOIN BorrowInfo bi ON (u.id=bi.uId) JOIN Book b ON (b.id=bi.bId) " +
+                "WHERE bi.borrowStatus='PB' " +
+                "ORDER BY bi.borrowTime DESC";
+
+        return dao.findBy(hql);
     }
 }

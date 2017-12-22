@@ -1,3 +1,5 @@
+let maxBiId = -1;
+let currentBiId = -1;
 let lastPage = 0;
 let bookForUpdate = null;
 
@@ -253,6 +255,35 @@ let listBorrowed = function () {
     }
 };
 
+let listPBBi = function () {
+    console.log("listPb");
+    let tbody = $("#borrowed-pb-body");
+    $.ajax({
+        url: "queryPBBi.do",
+        type: "GET",
+        contentType: "application/json"
+    }).then(function (list) {
+        tbody.empty();
+        if (list.length == 0) {
+            tbody.html("<tr><td colspan='8' class='text-danger text-center'>暂无借阅记录</td></tr>");
+        } else {
+            let trs = "";
+            $.each(list, function (i, b) {
+                trs = trs + "<tr>" +
+                    "<td>" + b.userName + "</td>" +
+                    "<td>" + b.bookName + "</td>" +
+                    "<td>" + b.borrowTimeStr + "</td>" +
+                    "<td>" + b.borrowStatusDes + "</td>" +
+                    "<td><button class='lent-btn' data-id='" + b.id + "'>借出</button></td>" +
+                    "</tr>";
+            });
+            tbody.html(trs);
+        }
+    }, function (xhr) {
+        alert("ERROR");
+    });
+};
+
 $(function () {
     $("#tabs").tabs();
 
@@ -311,8 +342,30 @@ $(function () {
                 title: message.typeChineseDes
             });
             btn.text("归还");
-            btn.attr("class","return-btn");
-        },function (xhr) {
+            btn.attr("class", "return-btn");
+        }, function (xhr) {
+            $("#msg-text").html("请求失败");
+            $("#msg-dialog").dialog({
+                title: "错误"
+            });
+        });
+    });
+
+    $('#borrowed-pb-body').on('click', '.lent-btn', function () {
+        let btn = $(this);
+        let id = btn.data('id');
+
+        $.ajax({
+            url: "changePB2BD.do?id=" + id,
+            type: "GET",
+            contentType: "application/json"
+        }).then(function (message) {
+            $("#msg-text").html(message.msg);
+            $("#msg-dialog").dialog({
+                title: message.typeChineseDes
+            });
+            btn.parent().parent().remove();
+        }, function (xhr) {
             $("#msg-text").html("请求失败");
             $("#msg-dialog").dialog({
                 title: "错误"
@@ -335,7 +388,7 @@ $(function () {
             });
             btn.parent().parent().remove();
             list();
-        },function (xhr) {
+        }, function (xhr) {
             $("#msg-text").html("请求失败");
             $("#msg-dialog").dialog({
                 title: "错误"
@@ -344,4 +397,26 @@ $(function () {
     });
 
     $("#card").keyup(listBorrowed);
+
+    getMaxId();
 });
+
+let getMaxId = function () {
+    $.ajax({
+        url: "getBiMaxId.do",
+        type: "GET"
+    }).then(function (id) {
+        currentBiId = id;
+    }, function (xhr) {
+        alert(xhr.responseText);
+    })
+};
+
+setInterval(function () {
+    getMaxId();
+    if (maxBiId < currentBiId) {
+        listPBBi();
+        maxBiId = currentBiId;
+    }
+}, 60000);
+
