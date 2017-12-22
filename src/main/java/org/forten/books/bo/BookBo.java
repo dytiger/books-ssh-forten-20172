@@ -143,4 +143,41 @@ public class BookBo {
 
         return dao.findBy(hql, params);
     }
+
+    @Transactional
+    public Message doChangePB2BD(int biId){
+        String hql = "UPDATE BorrowInfo SET borrowStatus='BD' WHERE id=:id";
+        Map<String,Object> params = new HashMap<>(1);
+        params.put("id",biId);
+        try {
+            dao.executeUpdate(hql, params);
+            return Message.info("已经成功借出图书");
+        }catch (Exception e){
+            return Message.error("预借状态切换错误");
+        }
+    }
+
+    @Transactional
+    public Message doReturnBook(int biId){
+        try {
+            // 得到书籍的id
+            String hql = "SELECT bId FROM BorrowInfo WHERE id=:id";
+            Map<String, Object> params = new HashMap<>();
+            params.put("id", biId);
+
+            int bookId = dao.findOneBy(hql, params);
+
+            // 对书籍信息中的库存加1
+            hql = "UPDATE Book SET amount=amount+1 WHERE id=:id";
+            params.put("id", bookId);
+            dao.executeUpdate(hql, params);
+
+            // 删除借书的信息
+            dao.delete(BorrowInfo.class, biId);
+
+            return Message.info("图书归还成功");
+        }catch(Exception e){
+            return Message.error("图书归还失败");
+        }
+    }
 }

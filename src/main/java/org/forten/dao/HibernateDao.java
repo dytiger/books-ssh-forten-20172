@@ -1,6 +1,7 @@
 package org.forten.dao;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -253,6 +254,13 @@ public class HibernateDao {
 			query.setParameter(param.getKey(), param.getValue());
 		}
 		return query.executeUpdate();
+	}
+
+	public <T> int delete(Class<T> clazz,Serializable id){
+		String hql = "DELETE FROM "+clazz.getName()+" WHERE id=:id";
+		Map<String ,Object> params = new HashMap<>();
+		params.put("id",id);
+		return executeUpdate(hql,params);
 	}
 
 	/**

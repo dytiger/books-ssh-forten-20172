@@ -231,9 +231,9 @@ let listBorrowed = function () {
                 $.each(list, function (i, b) {
                     let btnHTML = null;
                     if (b.borrowStatus == "PB") {
-                        btnHTML = "<button data-id='" + b.id + "'>借出</button>"
+                        btnHTML = "<button class='lent-btn' data-id='" + b.id + "'>借出</button>"
                     } else if (b.borrowStatus == "BD") {
-                        btnHTML = "<button data-id='" + b.id + "'>归还</button>"
+                        btnHTML = "<button class='return-btn' data-id='" + b.id + "'>归还</button>"
                     } else {
                         btnHTML = "";
                     }
@@ -296,5 +296,52 @@ $(function () {
         editDialog.dialog('open')
 
     });
+
+    $('#borrowed-body').on('click', '.lent-btn', function () {
+        let btn = $(this);
+        let id = btn.data('id');
+
+        $.ajax({
+            url: "changePB2BD.do?id=" + id,
+            type: "GET",
+            contentType: "application/json"
+        }).then(function (message) {
+            $("#msg-text").html(message.msg);
+            $("#msg-dialog").dialog({
+                title: message.typeChineseDes
+            });
+            btn.text("归还");
+            btn.attr("class","return-btn");
+        },function (xhr) {
+            $("#msg-text").html("请求失败");
+            $("#msg-dialog").dialog({
+                title: "错误"
+            });
+        });
+    });
+
+    $('#borrowed-body').on('click', '.return-btn', function () {
+        let btn = $(this);
+        let id = btn.data('id');
+
+        $.ajax({
+            url: "returnBook.do?id=" + id,
+            type: "GET",
+            contentType: "application/json"
+        }).then(function (message) {
+            $("#msg-text").html(message.msg);
+            $("#msg-dialog").dialog({
+                title: message.typeChineseDes
+            });
+            btn.parent().parent().remove();
+            list();
+        },function (xhr) {
+            $("#msg-text").html("请求失败");
+            $("#msg-dialog").dialog({
+                title: "错误"
+            });
+        });
+    });
+
     $("#card").keyup(listBorrowed);
 });

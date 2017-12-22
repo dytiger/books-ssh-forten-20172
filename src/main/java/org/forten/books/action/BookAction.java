@@ -45,4 +45,14 @@ public class BookAction {
     List<BorrowedBooksVo> queryBorrowedBooks(String card, HttpSession session) {
         return bo.queryBorrowedBooksForAdmin(card);
     }
+
+    @RequestMapping("/book/changePB2BD")
+    public @ResponseBody Message changePB2BD(int id){
+        return bo.doChangePB2BD(id);
+    }
+
+    @RequestMapping("/book/returnBook")
+    public @ResponseBody Message returnBook(int id){
+        return bo.doReturnBook(id);
+    }
 }
